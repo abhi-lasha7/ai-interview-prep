@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import useInterviewStore from '../store/interviewStore';
+import ScoreChart from '../components/dashboard/ScoreChart';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -71,7 +72,13 @@ export default function DashboardPage() {
             Start New Interview →
           </button>
         </div>
-
+        
+        {/* Charts */}
+{history.length > 0 && (
+  <div className="glass" style={{ padding: '24px', borderRadius: '16px', marginBottom: '40px' }}>
+    <ScoreChart interviews={history} />
+  </div>
+)}
         {/* Interview History */}
         <div>
           <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '20px' }}>
