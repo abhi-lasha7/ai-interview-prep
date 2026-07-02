@@ -1,7 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
 import User from '../models/User.js';
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 const router = express.Router();
 
@@ -13,6 +12,9 @@ router.post('/upload', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file provided' });
     }
 
+    // Dynamic import for pdf-parse
+    const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default;
+    
     // Convert base64 to buffer
     const buffer = Buffer.from(resumeBase64, 'base64');
 

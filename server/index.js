@@ -6,15 +6,11 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import authRoutes from './routes/authRoutes.js';
 import interviewRoutes from './routes/interviewRoutes.js';
-import resumeRoutes from './routes/resumeRoutes.js';
-
-// Add this with other routes:
-app.use('/api/resume', resumeRoutes);
+import resumeRoutes from './routes/resumeRoutes.js';  // ← IMPORT HERE
 
 dotenv.config();
 
-
-const app = express();
+const app = express();  // ← APP CREATED HERE
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
@@ -28,12 +24,13 @@ app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Routes - ADD ALL HERE AFTER APP CREATED
 app.get('/', (req, res) => {
   res.json({ message: '🎯 AI Interview Prep API is running' });
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/interviews', interviewRoutes);
+app.use('/api/resume', resumeRoutes);  // ← RESUME ROUTE HERE
 
 io.on('connection', (socket) => {
   console.log('🔌 Client connected:', socket.id);
