@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useInterviewStore from '../store/interviewStore';
+import { useVoiceRecognition } from '../hooks/useVoiceRecognition';
 
 export default function InterviewRoomPage() {
   const navigate = useNavigate();
@@ -9,6 +10,12 @@ export default function InterviewRoomPage() {
     lastEvaluation, submitAnswer, completeInterview, loading, resetInterview } = useInterviewStore();
 
   const [answer, setAnswer] = useState('');
+  const { transcript, isListening, isSupported, startListening, stopListening, resetTranscript } = useVoiceRecognition();
+
+// Auto-update answer when transcript changes
+useEffect(() => {
+  setAnswer(transcript);
+}, [transcript]);
   const [timeSpent, setTimeSpent] = useState(0);
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -117,11 +124,42 @@ export default function InterviewRoomPage() {
         )}
 
         {/* Answer Input */}
-        {!showEvaluation && (
-          <div className="glass" style={{ padding: '28px', borderRadius: '20px', marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '12px' }}>
-              ✍️ Your Answer
-            </label>
+{!showEvaluation && (
+  <div className="glass" style={{ padding: '28px', borderRadius: '20px', marginBottom: '20px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+      <label style={{ fontWeight: '600' }}>
+        ✍️ Your Answer
+      </label>
+      {isSupported && (
+        <button
+          onClick={isListening ? stopListening : startListening}
+          style={{
+            background: isListening ? '#ef4444' : '#667eea',
+            color: 'white',
+            border: 'none',
+            padding: '6px 16px',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: '600',
+            transition: 'all 0.3s'
+          }}>
+          {isListening ? '⏹️ Stop Listening' : '🎤 Start Voice'}
+        </button>
+      )}
+    </div>
+    {isListening && (
+      <div style={{ 
+        background: 'rgba(239, 68, 68, 0.2)', 
+        padding: '12px', 
+        borderRadius: '8px', 
+        marginBottom: '12px',
+        color: '#fca5a5',
+        fontSize: '14px'
+      }}>
+        🎤 Listening... Say your answer now
+      </div>
+    )}
             <textarea
               rows={6}
               placeholder="Type your answer here... Be specific and detailed."
