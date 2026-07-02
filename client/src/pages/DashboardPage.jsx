@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import useInterviewStore from '../store/interviewStore';
@@ -9,10 +9,30 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { fetchHistory, history } = useInterviewStore();
+  const [hasResume, setHasResume] = useState(false);
+  const [loadingResume, setLoadingResume] = useState(true);
 
   useEffect(() => {
     fetchHistory();
+    checkResumeStatus();
   }, []);
+
+  const checkResumeStatus = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/resume/preview`,
+        {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
+      const data = await response.json();
+      setHasResume(data.hasResume);
+    } catch (error) {
+      console.error('Error checking resume:', error);
+    } finally {
+      setLoadingResume(false);
+    }
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f0f1a', padding: '0' }}>
@@ -39,9 +59,6 @@ export default function DashboardPage() {
           </h1>
           <p style={{ color: '#94a3b8' }}>Track your progress and start new interviews</p>
         </div>
-        
-        {/* Resume Upload */}
-        <ResumeUpload onUploadSuccess={() => fetchHistory()} />
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>
@@ -58,6 +75,31 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
+
+        {/* Resume Upload Section */}
+        {!loadingResume && (
+          <div style={{ marginBottom: '40px' }}>
+            {hasResume ? (
+              <div className="glass" style={{ 
+                padding: '20px 24px', 
+                borderRadius: '16px',
+                border: '2px solid #22c55e',
+                background: 'rgba(34, 197, 94, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <span style={{ fontSize: '24px' }}>✅</span>
+                <div>
+                  <div style={{ fontWeight: '600', color: '#22c55e' }}>Resume Uploaded</div>
+                  <div style={{ color: '#94a3b8', fontSize: '14px' }}>Your resume is being used to tailor interview questions</div>
+                </div>
+              </div>
+            ) : (
+              <ResumeUpload onUploadSuccess={() => setHasResume(true)} />
+            )}
+          </div>
+        )}
 
         {/* Start Interview CTA */}
         <div className="glass" style={{
@@ -76,13 +118,14 @@ export default function DashboardPage() {
             Start New Interview →
           </button>
         </div>
-        
+
         {/* Charts */}
-{history.length > 0 && (
-  <div className="glass" style={{ padding: '24px', borderRadius: '16px', marginBottom: '40px' }}>
-    <ScoreChart interviews={history} />
-  </div>
-)}
+        {history.length > 0 && (
+          <div className="glass" style={{ padding: '24px', borderRadius: '16px', marginBottom: '40px' }}>
+            <ScoreChart interviews={history} />
+          </div>
+        )}
+
         {/* Interview History */}
         <div>
           <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '20px' }}>
