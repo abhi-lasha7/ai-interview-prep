@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import useInterviewStore from '../store/interviewStore';
 import ScoreChart from '../components/dashboard/ScoreChart';
+import ResumeUpload from '../components/dashboard/ResumeUpload';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -38,6 +39,9 @@ export default function DashboardPage() {
           </h1>
           <p style={{ color: '#94a3b8' }}>Track your progress and start new interviews</p>
         </div>
+        
+        {/* Resume Upload */}
+        <ResumeUpload onUploadSuccess={() => fetchHistory()} />
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>

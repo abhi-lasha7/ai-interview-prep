@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     select: false
   },
+    resumeText: {
+    type: String,
+    default: ''
+  },
   avatar: {
     type: String,
     default: ''

@@ -6,6 +6,10 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import authRoutes from './routes/authRoutes.js';
 import interviewRoutes from './routes/interviewRoutes.js';
+import resumeRoutes from './routes/resumeRoutes.js';
+
+// Add this with other routes:
+app.use('/api/resume', resumeRoutes);
 
 dotenv.config();
 
