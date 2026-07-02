@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
 import User from '../models/User.js';
-import pdfParse from 'pdf-parse';
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 const router = express.Router();
 
