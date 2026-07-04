@@ -77,29 +77,49 @@ export default function DashboardPage() {
         </div>
 
         {/* Resume Upload Section */}
-        {!loadingResume && (
-          <div style={{ marginBottom: '40px' }}>
-            {hasResume ? (
-              <div className="glass" style={{ 
-                padding: '20px 24px', 
-                borderRadius: '16px',
-                border: '2px solid #22c55e',
-                background: 'rgba(34, 197, 94, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <span style={{ fontSize: '24px' }}>✅</span>
-                <div>
-                  <div style={{ fontWeight: '600', color: '#22c55e' }}>Resume Uploaded</div>
-                  <div style={{ color: '#94a3b8', fontSize: '14px' }}>Your resume is being used to tailor interview questions</div>
-                </div>
-              </div>
-            ) : (
-              <ResumeUpload onUploadSuccess={() => setHasResume(true)} />
-            )}
+{!loadingResume && (
+  <div style={{ marginBottom: '40px' }}>
+    {hasResume ? (
+      <div className="glass" style={{ 
+        padding: '20px 24px', 
+        borderRadius: '16px',
+        border: '2px solid #22c55e',
+        background: 'rgba(34, 197, 94, 0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '24px' }}>✅</span>
+          <div>
+            <div style={{ fontWeight: '600', color: '#22c55e' }}>Resume Uploaded</div>
+            <div style={{ color: '#94a3b8', fontSize: '14px' }}>Your resume is being used to tailor interview questions</div>
           </div>
-        )}
+        </div>
+        <button
+          onClick={() => {
+            setHasResume(false);
+            checkResumeStatus();
+          }}
+          style={{
+            background: 'rgba(239, 68, 68, 0.2)',
+            color: '#fca5a5',
+            border: '1px solid rgba(239, 68, 68, 0.5)',
+            padding: '6px 16px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: '600'
+          }}>
+          Clear & Update
+        </button>
+      </div>
+    ) : (
+      <ResumeUpload onUploadSuccess={() => setHasResume(true)} />
+    )}
+  </div>
+)}
 
         {/* Start Interview CTA */}
         <div className="glass" style={{
