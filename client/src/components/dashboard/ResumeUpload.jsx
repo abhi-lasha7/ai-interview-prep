@@ -44,16 +44,33 @@ export default function ResumeUpload({ onUploadSuccess }) {
     setIsUploading(true);
     
     try {
-      // Extract text from PDF
-      toast.loading('Reading PDF...', { id: 'read' });
-      const resumeText = await extractTextFromPDF(file);
-      toast.dismiss('read');
+      const extractTextFromPDF = async (file) => {
+  try {
+    // Import pdfjs-dist correctly
+    const pdfjsLib = await import('pdfjs-dist/build/pdf.js');
+    const PDF = pdfjsLib.default;
+    
+    // Set worker
+    PDF.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
-      if (!resumeText || resumeText.length < 50) {
-        toast.error('Could not extract enough text from PDF');
-        setIsUploading(false);
-        return;
-      }
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await PDF.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = '';
+    
+    for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const text = content.items.map(item => item.str).join(' ');
+      fullText += text + '\n';
+    }
+
+    return fullText.trim();
+  } catch (error) {
+    console.error('PDF extraction failed:', error);
+    throw new Error('Could not extract text from PDF. Try a different file.');
+  }
+};
 
       // Upload extracted text to backend
       toast.loading('Uploading resume...', { id: 'upload' });
