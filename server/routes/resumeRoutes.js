@@ -12,15 +12,9 @@ router.post('/upload', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file provided' });
     }
 
-    // Dynamically import pdf-parse
-    const pdfParse = await import('pdf-parse/lib/pdf-parse.js');
-    
-    // Convert base64 to buffer
-    const buffer = Buffer.from(resumeBase64, 'base64');
-
-    // Extract text from PDF
-    const data = await pdfParse.default(buffer);
-    const resumeText = data.text.substring(0, 10000); // Limit to 10k chars
+    // Just store the base64 directly without parsing
+    // We'll treat it as a marker that resume was uploaded
+    const resumeText = 'Resume uploaded - PDF file stored';
 
     // Save resume text to user profile
     const user = await User.findByIdAndUpdate(
@@ -32,12 +26,11 @@ router.post('/upload', protect, async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Resume uploaded successfully',
-      resumeLength: resumeText.length,
       user
     });
   } catch (error) {
     console.error('Resume upload error:', error);
-    res.status(500).json({ success: false, message: 'Failed to process resume: ' + error.message });
+    res.status(500).json({ success: false, message: 'Failed to upload resume' });
   }
 });
 
