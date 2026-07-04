@@ -6,30 +6,38 @@ const router = express.Router();
 
 router.post('/upload', protect, async (req, res) => {
   try {
-    const { resumeText } = req.body;
+    const { resumeBase64 } = req.body;
 
-    if (!resumeText || resumeText.trim().length === 0) {
-      return res.status(400).json({ success: false, message: 'No resume text provided' });
+    if (!resumeBase64) {
+      return res.status(400).json({ success: false, message: 'No file provided' });
     }
 
-    // Save resume text to user profile (limit to 10000 characters)
-    const truncatedText = resumeText.substring(0, 10000);
+    // Dynamically import pdf-parse
+    const pdfParse = await import('pdf-parse/lib/pdf-parse.js');
+    
+    // Convert base64 to buffer
+    const buffer = Buffer.from(resumeBase64, 'base64');
 
+    // Extract text from PDF
+    const data = await pdfParse.default(buffer);
+    const resumeText = data.text.substring(0, 10000); // Limit to 10k chars
+
+    // Save resume text to user profile
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { resumeText: truncatedText },
+      { resumeText },
       { new: true }
     );
 
     res.status(200).json({
       success: true,
       message: 'Resume uploaded successfully',
-      resumeLength: truncatedText.length,
+      resumeLength: resumeText.length,
       user
     });
   } catch (error) {
     console.error('Resume upload error:', error);
-    res.status(500).json({ success: false, message: 'Failed to upload resume: ' + error.message });
+    res.status(500).json({ success: false, message: 'Failed to process resume: ' + error.message });
   }
 });
 
