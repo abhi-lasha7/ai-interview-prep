@@ -3,77 +3,23 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 
 export default function ResumeUpload({ onUploadSuccess }) {
-  const [isDragging, setIsDragging] = useState(false);
+  const [resumeText, setResumeText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const extractTextFromPDF = async (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          const pdfjsLib = await import('pdfjs-dist');
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
-
-          const arrayBuffer = e.target.result;
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          
-          let extractedText = '';
-          
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items.map(item => item.str).join(' ');
-            extractedText += pageText + '\n';
-          }
-
-          resolve(extractedText);
-        } catch (error) {
-          reject(new Error('Failed to extract text from PDF'));
-        }
-      };
-      
-      reader.onerror = () => {
-        reject(new Error('Failed to read file'));
-      };
-      
-      reader.readAsArrayBuffer(file);
-    });
-  };
-
-  const handleFile = async (file) => {
-    if (file.type !== 'application/pdf') {
-      toast.error('Only PDF files are supported');
+  const handleSubmit = async () => {
+    if (!resumeText.trim()) {
+      toast.error('Please enter your resume content');
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size must be less than 5MB');
+    if (resumeText.length < 50) {
+      toast.error('Resume content is too short');
       return;
     }
 
     setIsUploading(true);
     
     try {
-      toast.loading('Extracting text from PDF...', { id: 'extract' });
-      const resumeText = await extractTextFromPDF(file);
-      toast.dismiss('extract');
-
-      if (!resumeText || resumeText.trim().length === 0) {
-        toast.error('Could not extract text from PDF. Try a different file.');
-        setIsUploading(false);
-        return;
-      }
-
       toast.loading('Uploading resume...', { id: 'upload' });
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/resume/upload`,
@@ -88,76 +34,67 @@ export default function ResumeUpload({ onUploadSuccess }) {
 
       if (response.data.success) {
         toast.success('Resume uploaded successfully! 📄');
+        setResumeText('');
         if (onUploadSuccess) onUploadSuccess();
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error(error.message || 'Failed to upload resume');
+      toast.error('Failed to upload resume');
     } finally {
       setIsUploading(false);
-      setIsDragging(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFile(files[0]);
-    }
-  };
-
-  const handleFileInput = (e) => {
-    const files = e.target.files;
-    if (files.length > 0) {
-      handleFile(files[0]);
     }
   };
 
   return (
-    <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      style={{
-        border: isDragging ? '2px solid #667eea' : '2px dashed rgba(102,126,234,0.3)',
-        borderRadius: '16px',
-        padding: '40px 20px',
-        textAlign: 'center',
-        cursor: 'pointer',
-        transition: 'all 0.3s',
-        background: isDragging ? 'rgba(102,126,234,0.1)' : 'transparent',
-        marginBottom: '20px'
-      }}>
-      <div style={{ fontSize: '40px', marginBottom: '12px' }}>📄</div>
-      <div style={{ fontWeight: '600', marginBottom: '8px' }}>
-        {isUploading ? 'Processing...' : 'Upload Your Resume'}
+    <div className="glass" style={{ 
+      padding: '28px', 
+      borderRadius: '16px',
+      marginBottom: '20px'
+    }}>
+      <div style={{ fontWeight: '700', marginBottom: '12px', fontSize: '16px' }}>
+        📄 Add Your Resume
       </div>
       <div style={{ color: '#94a3b8', marginBottom: '16px', fontSize: '14px' }}>
-        Drag and drop your PDF resume here or click to browse
+        Paste your resume content below. AI will tailor interview questions to your experience.
       </div>
-      <input
-        type="file"
-        accept=".pdf"
-        onChange={handleFileInput}
-        style={{ display: 'none' }}
-        id="resume-input"
-        disabled={isUploading}
-      />
-      <label
-        htmlFor="resume-input"
+      <textarea
+        placeholder="Paste your resume here... (Skills, experience, projects, education, etc.)"
+        value={resumeText}
+        onChange={(e) => setResumeText(e.target.value)}
         style={{
+          width: '100%',
+          minHeight: '150px',
+          padding: '12px',
+          borderRadius: '8px',
+          background: 'rgba(0,0,0,0.3)',
+          border: '1px solid rgba(102,126,234,0.3)',
+          color: '#e2e8f0',
+          fontFamily: 'monospace',
+          fontSize: '13px',
+          lineHeight: '1.5',
+          resize: 'vertical',
+          marginBottom: '12px'
+        }}
+      />
+      <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '16px' }}>
+        {resumeText.length} characters
+      </div>
+      <button
+        onClick={handleSubmit}
+        disabled={isUploading || !resumeText.trim()}
+        style={{
+          width: '100%',
+          padding: '12px',
           background: '#667eea',
           color: 'white',
-          padding: '8px 20px',
+          border: 'none',
           borderRadius: '8px',
-          cursor: isUploading ? 'not-allowed' : 'pointer',
           fontWeight: '600',
-          display: 'inline-block',
-          opacity: isUploading ? 0.7 : 1
+          cursor: isUploading ? 'not-allowed' : 'pointer',
+          opacity: isUploading || !resumeText.trim() ? 0.6 : 1
         }}>
-        {isUploading ? 'Processing...' : 'Choose File'}
-      </label>
+        {isUploading ? 'Uploading...' : 'Upload Resume'}
+      </button>
     </div>
   );
 }
