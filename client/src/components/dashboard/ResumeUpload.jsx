@@ -16,28 +16,38 @@ export default function ResumeUpload({ onUploadSuccess }) {
   };
 
   const extractTextFromPDF = async (file) => {
-    try {
-      // Import pdf.js dynamically
-      const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
       
-      let extractedText = '';
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map(item => item.str).join(' ');
-        extractedText += pageText + '\n';
-      }
+      reader.onload = async (e) => {
+        try {
+          const pdfjsLib = await import('pdfjs-dist');
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
-      return extractedText;
-    } catch (error) {
-      console.error('PDF extraction error:', error);
-      throw new Error('Failed to extract text from PDF');
-    }
+          const arrayBuffer = e.target.result;
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          
+          let extractedText = '';
+          
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            extractedText += pageText + '\n';
+          }
+
+          resolve(extractedText);
+        } catch (error) {
+          reject(new Error('Failed to extract text from PDF'));
+        }
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+      
+      reader.readAsArrayBuffer(file);
+    });
   };
 
   const handleFile = async (file) => {
@@ -54,33 +64,16 @@ export default function ResumeUpload({ onUploadSuccess }) {
     setIsUploading(true);
     
     try {
-     const extractTextFromPDF = async (file) => {
-  try {
-    const pdfjsLib = await import('pdfjs-dist');
-    
-    // Use the worker from node_modules
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+      toast.loading('Extracting text from PDF...', { id: 'extract' });
+      const resumeText = await extractTextFromPDF(file);
+      toast.dismiss('extract');
 
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    
-    let extractedText = '';
-    
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map(item => item.str).join(' ');
-      extractedText += pageText + '\n';
-    }
+      if (!resumeText || resumeText.trim().length === 0) {
+        toast.error('Could not extract text from PDF. Try a different file.');
+        setIsUploading(false);
+        return;
+      }
 
-    return extractedText;
-  } catch (error) {
-    console.error('PDF extraction error:', error);
-    throw new Error('Failed to extract text from PDF. Please try another file.');
-  }
-};
-
-      // Upload to backend
       toast.loading('Uploading resume...', { id: 'upload' });
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/resume/upload`,
@@ -98,8 +91,8 @@ export default function ResumeUpload({ onUploadSuccess }) {
         if (onUploadSuccess) onUploadSuccess();
       }
     } catch (error) {
+      console.error('Error:', error);
       toast.error(error.message || 'Failed to upload resume');
-      console.error(error);
     } finally {
       setIsUploading(false);
       setIsDragging(false);
