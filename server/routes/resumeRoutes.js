@@ -6,20 +6,18 @@ const router = express.Router();
 
 router.post('/upload', protect, async (req, res) => {
   try {
-    const { resumeBase64 } = req.body;
+    const { resumeText } = req.body;
 
-    if (!resumeBase64) {
-      return res.status(400).json({ success: false, message: 'No file provided' });
+    if (!resumeText || resumeText.trim().length < 50) {
+      return res.status(400).json({ success: false, message: 'Resume text is empty or too short' });
     }
 
-    // Just store the base64 directly without parsing
-    // We'll treat it as a marker that resume was uploaded
-    const resumeText = 'Resume uploaded - PDF file stored';
+    // Save resume text (limit to 15000 chars for AI context)
+    const truncatedText = resumeText.substring(0, 15000);
 
-    // Save resume text to user profile
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { resumeText },
+      { resumeText: truncatedText },
       { new: true }
     );
 

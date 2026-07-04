@@ -6,6 +6,81 @@ export default function ResumeUpload({ onUploadSuccess }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  const extractTextFromPDF = async (file) => {
+    try {
+      const { default: pdfjsLib } = await import('pdfjs-dist');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      
+      let fullText = '';
+      
+      for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const text = content.items.map(item => item.str).join(' ');
+        fullText += text + '\n';
+      }
+
+      return fullText.trim();
+    } catch (error) {
+      console.error('PDF extraction failed:', error);
+      throw new Error('Could not extract text from PDF. Try a different file.');
+    }
+  };
+
+  const handleFile = async (file) => {
+    if (file.type !== 'application/pdf') {
+      toast.error('Only PDF files are supported');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      // Extract text from PDF
+      toast.loading('Reading PDF...', { id: 'read' });
+      const resumeText = await extractTextFromPDF(file);
+      toast.dismiss('read');
+
+      if (!resumeText || resumeText.length < 50) {
+        toast.error('Could not extract enough text from PDF');
+        setIsUploading(false);
+        return;
+      }
+
+      // Upload extracted text to backend
+      toast.loading('Uploading resume...', { id: 'upload' });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/resume/upload`,
+        { resumeText },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      toast.dismiss('upload');
+
+      if (response.data.success) {
+        toast.success('Resume uploaded! AI will use it for questions 🎯');
+        if (onUploadSuccess) onUploadSuccess();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error(error.message || 'Failed to upload resume');
+    } finally {
+      setIsUploading(false);
+      setIsDragging(false);
+    }
+  };
+
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -15,70 +90,16 @@ export default function ResumeUpload({ onUploadSuccess }) {
     setIsDragging(false);
   };
 
-  const handleFile = async (file) => {
-    if (file.type !== 'application/pdf') {
-      toast.error('Only PDF files are supported');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size must be less than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-    
-    try {
-      // Read file as base64
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const base64 = e.target.result.split(',')[1];
-          
-          toast.loading('Uploading resume...', { id: 'upload' });
-          const response = await axios.post(
-            `${import.meta.env.VITE_API_URL}/resume/upload`,
-            { resumeBase64: base64 },
-            {
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              }
-            }
-          );
-          toast.dismiss('upload');
-
-          if (response.data.success) {
-            toast.success('Resume uploaded successfully! 📄');
-            if (onUploadSuccess) onUploadSuccess();
-          }
-        } catch (error) {
-          console.error('Upload error:', error);
-          toast.error('Failed to upload resume');
-        } finally {
-          setIsUploading(false);
-          setIsDragging(false);
-        }
-      };
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Failed to process file');
-      setIsUploading(false);
-    }
-  };
-
   const handleDrop = (e) => {
     e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFile(files[0]);
+    if (e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileInput = (e) => {
-    const files = e.target.files;
-    if (files.length > 0) {
-      handleFile(files[0]);
+    if (e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
     }
   };
 
@@ -99,10 +120,10 @@ export default function ResumeUpload({ onUploadSuccess }) {
       }}>
       <div style={{ fontSize: '40px', marginBottom: '12px' }}>📄</div>
       <div style={{ fontWeight: '600', marginBottom: '8px' }}>
-        {isUploading ? 'Uploading...' : 'Upload Your Resume'}
+        {isUploading ? 'Processing...' : 'Upload Your Resume (PDF)'}
       </div>
       <div style={{ color: '#94a3b8', marginBottom: '16px', fontSize: '14px' }}>
-        Drag and drop your PDF resume here or click to browse
+        Drag and drop your PDF resume or click to browse
       </div>
       <input
         type="file"
