@@ -4,11 +4,12 @@ import axios from 'axios';
 
 export default function ResumeUpload({ onUploadSuccess }) {
   const [resumeText, setResumeText] = useState('');
+  const [resumeName, setResumeName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
   const handleUpload = async () => {
     if (!resumeText.trim() || resumeText.length < 50) {
-      toast.error('Please paste your resume (minimum 50 characters)');
+      toast.error('Resume must be at least 50 characters');
       return;
     }
 
@@ -17,20 +18,22 @@ export default function ResumeUpload({ onUploadSuccess }) {
       toast.loading('Uploading...', { id: 'upload' });
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/resume/upload`,
-        { resumeText },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
+        { 
+          resumeText,
+          name: resumeName || `Resume ${new Date().toLocaleDateString()}`
+        },
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
       toast.dismiss('upload');
 
       if (res.data.success) {
-        toast.success('Resume saved! AI will tailor questions to it 🎯');
+        toast.success('Resume uploaded! 🎯');
         setResumeText('');
+        setResumeName('');
         if (onUploadSuccess) onUploadSuccess();
       }
     } catch (error) {
-      toast.error('Failed to save resume');
+      toast.error('Failed to upload');
     } finally {
       setIsUploading(false);
     }
@@ -39,13 +42,31 @@ export default function ResumeUpload({ onUploadSuccess }) {
   return (
     <div className="glass" style={{ padding: '28px', borderRadius: '16px', marginBottom: '20px' }}>
       <div style={{ fontWeight: '700', marginBottom: '12px', fontSize: '16px' }}>
-        📄 Add Your Resume
+        📄 Add New Resume
       </div>
       <div style={{ color: '#94a3b8', marginBottom: '16px', fontSize: '14px' }}>
-        Paste your resume content. AI will generate interview questions based on your skills and experience.
+        Name your resume and paste content. AI will use it for interview questions.
       </div>
+      
+      <input
+        type="text"
+        placeholder="Resume name (e.g., Software Developer, Data Scientist)"
+        value={resumeName}
+        onChange={(e) => setResumeName(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          borderRadius: '8px',
+          background: 'rgba(0,0,0,0.3)',
+          border: '1px solid rgba(102,126,234,0.3)',
+          color: '#e2e8f0',
+          fontSize: '13px',
+          marginBottom: '12px'
+        }}
+      />
+
       <textarea
-        placeholder="Paste your resume here... (Skills, experience, projects, education, certifications, etc.)"
+        placeholder="Paste your resume here... (Skills, experience, projects, education, etc.)"
         value={resumeText}
         onChange={(e) => setResumeText(e.target.value)}
         style={{
@@ -63,6 +84,7 @@ export default function ResumeUpload({ onUploadSuccess }) {
           marginBottom: '12px'
         }}
       />
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ color: '#94a3b8', fontSize: '12px' }}>
           {resumeText.length} characters
@@ -80,7 +102,7 @@ export default function ResumeUpload({ onUploadSuccess }) {
             cursor: isUploading ? 'not-allowed' : 'pointer',
             opacity: isUploading || resumeText.length < 50 ? 0.6 : 1
           }}>
-          {isUploading ? 'Uploading...' : 'Save Resume'}
+          {isUploading ? 'Uploading...' : 'Upload Resume'}
         </button>
       </div>
     </div>
