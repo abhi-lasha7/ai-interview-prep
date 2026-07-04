@@ -98,10 +98,9 @@ export default function DashboardPage() {
           </div>
         </div>
         <button
-          onClick={() => {
-            setHasResume(false);
-            checkResumeStatus();
-          }}
+  onClick={() => {
+    setHasResume(false);
+  }}
           style={{
             background: 'rgba(239, 68, 68, 0.2)',
             color: '#fca5a5',
