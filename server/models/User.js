@@ -18,10 +18,32 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     select: false
   },
-    resumeText: {
-    type: String,
-    default: ''
+  // NEW: Multiple resumes support
+  resumes: [
+    {
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId()
+      },
+      name: {
+        type: String,
+        default: 'Resume'
+      },
+      content: {
+        type: String,
+        default: ''
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
+  activeResumeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: null
   },
+  
   avatar: {
     type: String,
     default: ''
