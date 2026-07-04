@@ -4,33 +4,40 @@ import useAuthStore from '../store/authStore';
 import useInterviewStore from '../store/interviewStore';
 import ScoreChart from '../components/dashboard/ScoreChart';
 import ResumeUpload from '../components/dashboard/ResumeUpload';
+import ResumeList from '../components/dashboard/ResumeList';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { fetchHistory, history } = useInterviewStore();
-  const [hasResume, setHasResume] = useState(false);
-  const [loadingResume, setLoadingResume] = useState(true);
+  
+  const [resumes, setResumes] = useState([]);
+  const [activeResumeId, setActiveResumeId] = useState(null);
+  const [showUpload, setShowUpload] = useState(false);
+  const [loadingResumes, setLoadingResumes] = useState(true);
 
   useEffect(() => {
     fetchHistory();
-    checkResumeStatus();
+    fetchResumes();
   }, []);
 
-  const checkResumeStatus = async () => {
+  const fetchResumes = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/resume/preview`,
+        `${import.meta.env.VITE_API_URL}/resume/list`,
         {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }
       );
       const data = await response.json();
-      setHasResume(data.hasResume);
+      if (data.success) {
+        setResumes(data.resumes || []);
+        setActiveResumeId(data.activeResumeId);
+      }
     } catch (error) {
-      console.error('Error checking resume:', error);
+      console.error('Error fetching resumes:', error);
     } finally {
-      setLoadingResume(false);
+      setLoadingResumes(false);
     }
   };
 
@@ -76,49 +83,40 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Resume Upload Section */}
-{!loadingResume && (
-  <div style={{ marginBottom: '40px' }}>
-    {hasResume ? (
-      <div className="glass" style={{ 
-        padding: '20px 24px', 
-        borderRadius: '16px',
-        border: '2px solid #22c55e',
-        background: 'rgba(34, 197, 94, 0.1)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '12px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '24px' }}>✅</span>
-          <div>
-            <div style={{ fontWeight: '600', color: '#22c55e' }}>Resume Uploaded</div>
-            <div style={{ color: '#94a3b8', fontSize: '14px' }}>Your resume is being used to tailor interview questions</div>
+        {/* Resume Management */}
+        {!loadingResumes && (
+          <div style={{ marginBottom: '40px' }}>
+            {showUpload ? (
+              <>
+                <ResumeUpload onUploadSuccess={() => {
+                  fetchResumes();
+                  setShowUpload(false);
+                }} />
+                <button
+                  onClick={() => setShowUpload(false)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#667eea',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    marginBottom: '20px'
+                  }}>
+                  ← Back to Resumes
+                </button>
+              </>
+            ) : (
+              <ResumeList
+                resumes={resumes}
+                activeResumeId={activeResumeId}
+                onSelect={(id) => setActiveResumeId(id)}
+                onDelete={(id) => setResumes(resumes.filter(r => r.id !== id))}
+                onUploadNew={() => setShowUpload(true)}
+              />
+            )}
           </div>
-        </div>
-        <button
-  onClick={() => {
-    setHasResume(false);
-  }}
-          style={{
-            background: 'rgba(239, 68, 68, 0.2)',
-            color: '#fca5a5',
-            border: '1px solid rgba(239, 68, 68, 0.5)',
-            padding: '6px 16px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: '600'
-          }}>
-          Clear & Update
-        </button>
-      </div>
-    ) : (
-      <ResumeUpload onUploadSuccess={() => setHasResume(true)} />
-    )}
-  </div>
-)}
+        )}
 
         {/* Start Interview CTA */}
         <div className="glass" style={{
