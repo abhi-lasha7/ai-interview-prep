@@ -6,125 +6,73 @@ export default function ResumeUpload({ onUploadSuccess }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const extractTextFromPDF = async (file) => {
+  // Extract text from PDF
+  const extractPDFText = async (file) => {
     try {
-      const { default: pdfjsLib } = await import('pdfjs-dist');
+      const pdfjsLib = await import('pdfjs-dist');
       pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       
-      let fullText = '';
-      
-      for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        const text = content.items.map(item => item.str).join(' ');
-        fullText += text + '\n';
+        text += content.items.map(item => item.str).join(' ') + ' ';
       }
-
-      return fullText.trim();
-    } catch (error) {
-      console.error('PDF extraction failed:', error);
-      throw new Error('Could not extract text from PDF. Try a different file.');
+      
+      return text.trim();
+    } catch (err) {
+      throw new Error('Failed to extract PDF');
     }
   };
 
-  const handleFile = async (file) => {
+  // Handle file upload
+  const uploadResume = async (file) => {
     if (file.type !== 'application/pdf') {
-      toast.error('Only PDF files are supported');
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size must be less than 10MB');
+      toast.error('Only PDF files allowed');
       return;
     }
 
     setIsUploading(true);
-    
     try {
-      const extractTextFromPDF = async (file) => {
-  try {
-    // Import pdfjs-dist correctly
-    const pdfjsLib = await import('pdfjs-dist/build/pdf.js');
-    const PDF = pdfjsLib.default;
-    
-    // Set worker
-    PDF.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+      toast.loading('Reading PDF...', { id: 'read' });
+      const text = await extractPDFText(file);
+      toast.dismiss('read');
 
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await PDF.getDocument({ data: arrayBuffer }).promise;
-    
-    let fullText = '';
-    
-    for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      const text = content.items.map(item => item.str).join(' ');
-      fullText += text + '\n';
-    }
+      if (!text || text.length < 50) {
+        toast.error('Could not extract text from PDF');
+        setIsUploading(false);
+        return;
+      }
 
-    return fullText.trim();
-  } catch (error) {
-    console.error('PDF extraction failed:', error);
-    throw new Error('Could not extract text from PDF. Try a different file.');
-  }
-};
-
-      // Upload extracted text to backend
-      toast.loading('Uploading resume...', { id: 'upload' });
-      const response = await axios.post(
+      toast.loading('Uploading...', { id: 'upload' });
+      const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/resume/upload`,
-        { resumeText },
+        { resumeText: text },
         {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         }
       );
       toast.dismiss('upload');
 
-      if (response.data.success) {
-        toast.success('Resume uploaded! AI will use it for questions 🎯');
+      if (res.data.success) {
+        toast.success('Resume uploaded! 📄');
         if (onUploadSuccess) onUploadSuccess();
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error(error.message || 'Failed to upload resume');
+      toast.error(error.message || 'Upload failed');
     } finally {
       setIsUploading(false);
-      setIsDragging(false);
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files.length > 0) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleFileInput = (e) => {
-    if (e.target.files.length > 0) {
-      handleFile(e.target.files[0]);
     }
   };
 
   return (
     <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+      onDragLeave={() => setIsDragging(false)}
+      onDrop={(e) => { e.preventDefault(); if (e.dataTransfer.files[0]) uploadResume(e.dataTransfer.files[0]); }}
       style={{
         border: isDragging ? '2px solid #667eea' : '2px dashed rgba(102,126,234,0.3)',
         borderRadius: '16px',
@@ -140,15 +88,14 @@ export default function ResumeUpload({ onUploadSuccess }) {
         {isUploading ? 'Processing...' : 'Upload Your Resume (PDF)'}
       </div>
       <div style={{ color: '#94a3b8', marginBottom: '16px', fontSize: '14px' }}>
-        Drag and drop your PDF resume or click to browse
+        Drag and drop your resume or click to browse
       </div>
       <input
         type="file"
         accept=".pdf"
-        onChange={handleFileInput}
+        onChange={(e) => e.target.files[0] && uploadResume(e.target.files[0])}
         style={{ display: 'none' }}
         id="resume-input"
-        disabled={isUploading}
       />
       <label
         htmlFor="resume-input"
@@ -157,7 +104,7 @@ export default function ResumeUpload({ onUploadSuccess }) {
           color: 'white',
           padding: '8px 20px',
           borderRadius: '8px',
-          cursor: isUploading ? 'not-allowed' : 'pointer',
+          cursor: 'pointer',
           fontWeight: '600',
           display: 'inline-block',
           opacity: isUploading ? 0.7 : 1
