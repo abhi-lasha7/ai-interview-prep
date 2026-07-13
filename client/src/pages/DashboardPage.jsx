@@ -118,21 +118,50 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Start Interview CTA */}
-        <div className="glass" style={{
-          padding: '48px', borderRadius: '20px', textAlign: 'center', marginBottom: '40px',
-          background: 'linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%)'
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚀</div>
-          <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '12px' }}>
-            Ready for your next interview?
-          </h2>
-          <p style={{ color: '#94a3b8', marginBottom: '28px', fontSize: '16px' }}>
-            Practice with AI, get instant feedback and improve fast
-          </p>
-          <button className="btn-primary" style={{ fontSize: '18px', padding: '16px 40px' }}
-            onClick={() => navigate('/setup')}>
-            Start New Interview →
+        {/* Quick Actions */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '40px' }}>
+          <button
+            onClick={() => navigate('/weak-areas')}
+            className="glass"
+            style={{
+              padding: '24px',
+              borderRadius: '16px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              border: 'none',
+              background: 'rgba(102,126,234,0.15)',
+              transition: 'all 0.3s',
+              color: 'inherit',
+              fontSize: 'inherit',
+              fontFamily: 'inherit'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.25)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.15)'}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎯</div>
+            <div style={{ fontWeight: '700', marginBottom: '4px' }}>Weak Areas</div>
+            <div style={{ color: '#94a3b8', fontSize: '13px' }}>See where to improve</div>
+          </button>
+
+          <button
+            onClick={() => navigate('/setup')}
+            className="glass"
+            style={{
+              padding: '24px',
+              borderRadius: '16px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              border: 'none',
+              background: 'rgba(102,126,234,0.15)',
+              transition: 'all 0.3s',
+              color: 'inherit',
+              fontSize: 'inherit',
+              fontFamily: 'inherit'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.25)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.15)'}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🚀</div>
+            <div style={{ fontWeight: '700', marginBottom: '4px' }}>Start Interview</div>
+            <div style={{ color: '#94a3b8', fontSize: '13px' }}>Practice now</div>
           </button>
         </div>
 

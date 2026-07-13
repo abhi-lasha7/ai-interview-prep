@@ -11,6 +11,7 @@ import InterviewSetupPage from './pages/InterviewSetupPage';
 import InterviewRoomPage from './pages/InterviewRoomPage';
 import ResultsPage from './pages/ResultsPage';
 import InterviewReplayPage from './pages/InterviewReplayPage';
+import WeakAreasPage from './pages/WeakAreasPage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
@@ -41,6 +42,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/replay/:interviewId" element={<InterviewReplayPage />} />
+        <Route path="/weak-areas" element={<WeakAreasPage />} />
         <Route path="/dashboard" element={
           <ProtectedRoute><DashboardPage /></ProtectedRoute>
         } />
