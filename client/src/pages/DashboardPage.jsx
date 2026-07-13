@@ -158,28 +158,54 @@ export default function DashboardPage() {
               {history.map((item, i) => (
                 <div key={i} className="glass" style={{
                   padding: '20px 24px', borderRadius: '12px',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                }}>
-                  <div>
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  background: 'rgba(102,126,234,0.05)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.15)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.05)'}
+                onClick={() => navigate(`/replay/${item._id}`)}>
+                  <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: '600', marginBottom: '4px' }}>{item.title}</div>
                     <div style={{ color: '#94a3b8', fontSize: '14px' }}>
                       {item.jobRole} • {item.difficulty} • {new Date(item.createdAt).toLocaleDateString()}
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{
-                      color: item.overallScore >= 7 ? '#22c55e' : item.overallScore >= 5 ? '#f59e0b' : '#ef4444',
-                      fontWeight: '700', fontSize: '18px'
-                    }}>
-                      {item.overallScore ? `${item.overallScore.toFixed(1)}/10` : '—'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{
+                        color: item.overallScore >= 7 ? '#22c55e' : item.overallScore >= 5 ? '#f59e0b' : '#ef4444',
+                        fontWeight: '700', fontSize: '18px'
+                      }}>
+                        {item.overallScore ? `${item.overallScore.toFixed(1)}/10` : '—'}
+                      </div>
+                      <div style={{
+                        fontSize: '12px', padding: '2px 10px', borderRadius: '20px', marginTop: '4px',
+                        background: item.status === 'completed' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.2)',
+                        color: item.status === 'completed' ? '#22c55e' : '#f59e0b'
+                      }}>
+                        {item.status}
+                      </div>
                     </div>
-                    <div style={{
-                      fontSize: '12px', padding: '2px 10px', borderRadius: '20px', marginTop: '4px',
-                      background: item.status === 'completed' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.2)',
-                      color: item.status === 'completed' ? '#22c55e' : '#f59e0b'
-                    }}>
-                      {item.status}
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/replay/${item._id}`);
+                      }}
+                      style={{
+                        background: '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        whiteSpace: 'nowrap'
+                      }}>
+                      📺 Replay
+                    </button>
                   </div>
                 </div>
               ))}
