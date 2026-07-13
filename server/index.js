@@ -6,7 +6,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import authRoutes from './routes/authRoutes.js';
 import interviewRoutes from './routes/interviewRoutes.js';
-import resumeRoutes from './routes/resumeRoutes.js';  // ← IMPORT HERE
+import resumeRoutes from './routes/resumeRoutes.js';
+import replayRoutes from './routes/replayRoutes.js';  // ← IMPORT HERE
 
 dotenv.config();
 
@@ -30,7 +31,8 @@ app.get('/', (req, res) => {
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/interviews', interviewRoutes);
-app.use('/api/resume', resumeRoutes);  // ← RESUME ROUTE HERE
+app.use('/api/resume', resumeRoutes);
+app.use('/api/replay', replayRoutes);  // ← RESUME ROUTE HERE
 
 io.on('connection', (socket) => {
   console.log('🔌 Client connected:', socket.id);

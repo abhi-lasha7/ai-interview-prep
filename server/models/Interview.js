@@ -10,7 +10,8 @@ const questionSchema = new mongoose.Schema({
   feedback: { type: String, default: '' },
   improvements: [{ type: String }],
   timeSpent: { type: Number, default: 0 },
-  isAnswered: { type: Boolean, default: false }
+  isAnswered: { type: Boolean, default: false },
+   followUp: { type: String, default: '' }
 });
 
 const interviewSchema = new mongoose.Schema({
