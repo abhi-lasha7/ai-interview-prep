@@ -41,26 +41,13 @@ export default function DailyChallengeDetailPage() {
     }
   };
 
-const handleStartChallenge = async () => {
-  try {
-    // Start interview with daily challenge question
-    const interviewData = {
-      jobRole: challenge.category,
-      difficulty: challenge.difficulty,
-      interviewType: 'mixed',
-      interviewerPersona: 'friendly',
-      totalQuestions: 1, // Only 1 question for daily challenge
-      questions: [challenge], // Use the daily challenge question
-      isDailyChallenge: true
-    };
-
-    // Store in localStorage temporarily
-    localStorage.setItem('dailyChallengeData', JSON.stringify(interviewData));
-    
-    navigate('/interview');
-  } catch (error) {
-    toast.error('Failed to start challenge');
-  }
+const handleStartChallenge = () => {
+  navigate('/setup', { 
+    state: { 
+      isDailyChallenge: true,
+      challenge: challenge
+    } 
+  });
 };
 
   if (loading) {
