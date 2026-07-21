@@ -12,6 +12,7 @@ import InterviewRoomPage from './pages/InterviewRoomPage';
 import ResultsPage from './pages/ResultsPage';
 import InterviewReplayPage from './pages/InterviewReplayPage';
 import WeakAreasPage from './pages/WeakAreasPage';
+import DailyChallengeDetailPage from './pages/DailyChallengeDetailPage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
@@ -43,6 +44,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/replay/:interviewId" element={<InterviewReplayPage />} />
         <Route path="/weak-areas" element={<WeakAreasPage />} />
+        <Route path="/daily-challenge" element={<DailyChallengeDetailPage />} />
         <Route path="/dashboard" element={
           <ProtectedRoute><DashboardPage /></ProtectedRoute>
         } />

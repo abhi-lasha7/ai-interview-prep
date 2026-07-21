@@ -5,6 +5,7 @@ import useInterviewStore from '../store/interviewStore';
 import ScoreChart from '../components/dashboard/ScoreChart';
 import ResumeUpload from '../components/dashboard/ResumeUpload';
 import ResumeList from '../components/dashboard/ResumeList';
+import DailyChallengeCard from '../components/dashboard/DailyChallengeCard';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -82,6 +83,9 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
+
+        {/* Daily Challenge */}
+          <DailyChallengeCard />
 
         {/* Resume Management */}
         {!loadingResumes && (
