@@ -59,7 +59,7 @@ export default function DailyChallengeDetailPage() {
       );
 
       // Navigate directly to interview room
-      navigate('/interview', {
+      navigate('/daily-interview', {
         state: {
           isDailyChallenge: true,
           challenge: challenge
