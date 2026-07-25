@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import useInterviewStore from '../store/interviewStore';
 
 export default function DailyChallengeDetailPage() {
   const navigate = useNavigate();
+  const { startInterview } = useInterviewStore();
   
   const [challenge, setChallenge] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -39,16 +41,35 @@ export default function DailyChallengeDetailPage() {
     }
   };
 
-const handleStartChallenge = () => {
-  // Store challenge data in localStorage temporarily
-  localStorage.setItem('dailyChallengeData', JSON.stringify({
-    isDailyChallenge: true,
-    question: challenge
-  }));
-  
-  // Navigate directly to interview
-  navigate('/interview');
-};
+  const handleStartChallenge = async () => {
+    try {
+      if (!challenge) {
+        toast.error('Challenge not loaded');
+        return;
+      }
+
+      // Start interview directly with daily challenge
+      await startInterview(
+        challenge.category || 'general',
+        'friendly',
+        'mixed',
+        challenge.difficulty || 'medium',
+        1, // Only 1 question for daily challenge
+        ''
+      );
+
+      // Navigate directly to interview room
+      navigate('/interview', {
+        state: {
+          isDailyChallenge: true,
+          challenge: challenge
+        }
+      });
+    } catch (error) {
+      console.error('Error starting challenge:', error);
+      toast.error('Failed to start challenge');
+    }
+  };
 
   if (loading) {
     return (
