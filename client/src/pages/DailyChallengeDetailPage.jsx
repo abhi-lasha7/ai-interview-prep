@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import useInterviewStore from '../store/interviewStore';
 
 export default function DailyChallengeDetailPage() {
   const navigate = useNavigate();
-  const { startInterview } = useInterviewStore();
   
   const [challenge, setChallenge] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -42,12 +40,14 @@ export default function DailyChallengeDetailPage() {
   };
 
 const handleStartChallenge = () => {
-  navigate('/setup', { 
-    state: { 
-      isDailyChallenge: true,
-      challenge: challenge
-    } 
-  });
+  // Store challenge data in localStorage temporarily
+  localStorage.setItem('dailyChallengeData', JSON.stringify({
+    isDailyChallenge: true,
+    question: challenge
+  }));
+  
+  // Navigate directly to interview
+  navigate('/interview');
 };
 
   if (loading) {

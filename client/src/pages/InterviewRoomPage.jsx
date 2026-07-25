@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import useInterviewStore from '../store/interviewStore';
 import { useVoiceRecognition } from '../hooks/useVoiceRecognition';
 
+
+
 export default function InterviewRoomPage() {
   const navigate = useNavigate();
   const { currentInterview, currentQuestion, currentQuestionIndex,
@@ -11,6 +13,15 @@ export default function InterviewRoomPage() {
 
   const [answer, setAnswer] = useState('');
   const { transcript, isListening, isSupported, startListening, stopListening, resetTranscript } = useVoiceRecognition();
+
+  // Check if this is a daily challenge
+const dailyChallengeData = localStorage.getItem('dailyChallengeData');
+const isDailyChallenge = dailyChallengeData ? JSON.parse(dailyChallengeData) : null;
+
+// Clear it after reading
+if (dailyChallengeData) {
+  localStorage.removeItem('dailyChallengeData');
+}
 
 // Auto-update answer when transcript changes
 useEffect(() => {
