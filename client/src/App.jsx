@@ -45,6 +45,13 @@ function App() {
         <Route path="/replay/:interviewId" element={<InterviewReplayPage />} />
         <Route path="/weak-areas" element={<WeakAreasPage />} />
         <Route path="/daily-challenge" element={<DailyChallengeDetailPage />} />
+        
+        {/* Daily interview route - bypasses setup */}
+        <Route path="/daily-interview" element={
+          <ProtectedRoute><InterviewRoomPage /></ProtectedRoute>
+        } />
+        
+        {/* Regular interview routes */}
         <Route path="/dashboard" element={
           <ProtectedRoute><DashboardPage /></ProtectedRoute>
         } />
