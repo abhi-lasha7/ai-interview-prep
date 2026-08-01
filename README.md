@@ -1,100 +1,91 @@
-# 🎯 AI Interview Prep Platform
+# 🎯 AI Interview Preparation Platform
 
-An AI-powered interview preparation platform that helps job seekers practice and ace their interviews.
-
-## 🚀 Live Demo
-[Add your deployed URL here]
+An **AI-powered full-stack platform** that helps users practice technical and behavioral interviews with real-time AI evaluation, voice mode, and personalized analytics.
 
 ## ✨ Features
 
-- 🤖 **AI Interviewer Personas** — Choose between Friendly, Strict, or FAANG-style interviewers
-- ⚡ **Instant AI Feedback** — Get scored and evaluated after every answer
-- 📊 **Progress Dashboard** — Track your improvement over time
-- 🎯 **Role-specific Questions** — Questions tailored to your target job role
-- 🔄 **Follow-up Questions** — AI asks intelligent follow-ups like a real interviewer
-- 📱 **Interview History** — Review all past interviews and scores
+- **AI Interview Simulation** — Practice with Groq AI (Llama 3.3)
+- **Voice Mode** — Practice speaking answers with Web Speech API
+- **Multiple Resumes** — Manage resumes for different roles
+- **Interview Replay** — Review Q&A with detailed feedback
+- **Weak Area Detection** — AI-powered analytics to identify weak areas
+- **Daily Challenges** — Gamified practice with streaks and leaderboard
+- **Performance Tracking** — Visual charts and progress metrics
+- **Real-time Evaluation** — Instant feedback and improvement tips
 
 ## 🛠️ Tech Stack
 
-**Frontend:**
-- React.js (Vite)
-- Zustand (State Management)
-- React Router DOM
-- Axios
-- React Hot Toast
+**Frontend:** React.js (Vite) | Tailwind CSS | Recharts
+**Backend:** Node.js | Express.js | Socket.io
+**Database:** MongoDB Atlas
+**AI:** Groq API (Llama 3.3 70B)
+**Deployment:** Vercel (Frontend) | Render (Backend)
+**Auth:** JWT Authentication
 
-**Backend:**
-- Node.js + Express.js
-- MongoDB Atlas (Database)
-- JWT Authentication
-- Socket.io (Real-time)
+## 📊 Live Demo
 
-**AI Integration:**
-- Groq AI (Llama 3.3)
-- Fast inference for real-time evaluation
+👉 **[Interview Prep Platform](https://ai-interview-prep-pi-ten.vercel.app)**
 
-## 📦 Installation
+## 🚀 Key Features Breakdown
+
+### 1. Interview Simulation
+- Choose job role, difficulty, interview type
+- Select AI persona (Friendly/Strict/FAANG)
+- Real-time AI evaluation with scoring
+- Follow-up questions for deeper learning
+
+### 2. Voice Mode
+- Web Speech API integration
+- Practice speaking naturally
+- Real-time transcription
+- Transcribed answers evaluated by AI
+
+### 3. Weak Area Detection
+- Analyzes performance across categories
+- Identifies categories scoring < 7/10
+- Provides personalized practice recommendations
+- Shows improvement trends
+
+### 4. Daily Challenges
+- One featured question daily
+- Streak counter for motivation
+- Real-time leaderboard
+- Achievement badges (7-day, 30-day, 100-day)
+
+### 5. Interview Replay
+- Full Q&A review with scores
+- Per-question feedback
+- Improvement suggestions
+- Category breakdown
+
+## 📈 Performance Metrics
+
+- ✅ 100+ concurrent users supported
+- ✅ Render free tier with optimized cold start
+- ✅ MongoDB Atlas for scalable storage
+- ✅ Deployed on production with CI/CD
+
+## 🔧 Setup & Installation
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 16+
 - MongoDB Atlas account
-- Groq API key (free at console.groq.com)
+- Groq API key
 
-### Setup
-
-1. Clone the repository
-\`\`\`bash
-git clone https://github.com/yourusername/ai-interview-prep.git
-cd ai-interview-prep
-\`\`\`
-
-2. Install server dependencies
-\`\`\`bash
-cd server
-npm install
-\`\`\`
-
-3. Install client dependencies
-\`\`\`bash
-cd ../client
-npm install
-\`\`\`
-
-4. Create \`server/.env\` file
-\`\`\`env
-PORT=5000
-MONGO_URI=your_mongodb_atlas_uri
-JWT_SECRET=your_jwt_secret
-GROQ_API_KEY=your_groq_api_key
-CLIENT_URL=http://localhost:5173
-NODE_ENV=development
-\`\`\`
-
-5. Run the backend
-\`\`\`bash
-cd server
-npm run dev
-\`\`\`
-
-6. Run the frontend
-\`\`\`bash
+### Frontend Setup
+```bash
 cd client
+npm install
 npm run dev
-\`\`\`
+```
 
-7. Open \`http://localhost:5173\`
+### Backend Setup
+```bash
+cd server
+npm install
+npm start
+```
 
-## 📸 Screenshots
-[Add screenshots here]
+### Environment Variables
 
-## 🔮 Future Features
-- Voice mode (Web Speech API)
-- Resume upload and analysis
-- Peer comparison and leaderboard
-- Mock coding rounds
-
-## 👩‍💻 Author
-Abhilasha Gavhane
-
-## 📄 License
-MIT
+**Backend (.env)**
