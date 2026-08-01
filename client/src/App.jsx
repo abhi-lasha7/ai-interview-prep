@@ -13,6 +13,7 @@ import ResultsPage from './pages/ResultsPage';
 import InterviewReplayPage from './pages/InterviewReplayPage';
 import WeakAreasPage from './pages/WeakAreasPage';
 import DailyChallengeDetailPage from './pages/DailyChallengeDetailPage';
+import GenerateFromResumePage from './pages/GenerateFromResumePage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
@@ -63,6 +64,9 @@ function App() {
         } />
         <Route path="/results" element={
           <ProtectedRoute><ResultsPage /></ProtectedRoute>
+        } />
+        <Route path="/generate-from-resume" element={
+          <ProtectedRoute><GenerateFromResumePage /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>

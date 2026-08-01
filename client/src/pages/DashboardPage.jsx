@@ -84,9 +84,6 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Daily Challenge */}
-          <DailyChallengeCard />
-
         {/* Resume Management */}
         {!loadingResumes && (
           <div style={{ marginBottom: '40px' }}>
@@ -122,8 +119,35 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Daily Challenge Card */}
+        <DailyChallengeCard />
+
         {/* Quick Actions */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '40px' }}>
+          {/* AI Generator Button */}
+          <button
+            onClick={() => navigate('/generate-from-resume')}
+            className="glass"
+            style={{
+              padding: '24px',
+              borderRadius: '16px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              border: 'none',
+              background: 'rgba(102,126,234,0.15)',
+              transition: 'all 0.3s',
+              color: 'inherit',
+              fontSize: 'inherit',
+              fontFamily: 'inherit'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.25)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(102,126,234,0.15)'}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🤖</div>
+            <div style={{ fontWeight: '700', marginBottom: '4px' }}>AI Generator</div>
+            <div style={{ color: '#94a3b8', fontSize: '13px' }}>Generate from resume</div>
+          </button>
+
+          {/* Weak Areas Button */}
           <button
             onClick={() => navigate('/weak-areas')}
             className="glass"
@@ -146,6 +170,7 @@ export default function DashboardPage() {
             <div style={{ color: '#94a3b8', fontSize: '13px' }}>See where to improve</div>
           </button>
 
+          {/* Start Interview Button */}
           <button
             onClick={() => navigate('/setup')}
             className="glass"
