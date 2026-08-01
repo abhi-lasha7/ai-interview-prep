@@ -58,7 +58,7 @@ export default function DailyChallengeDetailPage() {
         ''
       );
 
-      // Navigate directly to interview room
+      // Navigate to daily interview page (bypasses setup)
       navigate('/daily-interview', {
         state: {
           isDailyChallenge: true,
